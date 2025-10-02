@@ -7,6 +7,7 @@
 enum PrimaryPrompt{LOGIN, REGISTER, EXIT, ADMIN_LOGIN};
 enum RegisterPrompt{CREATE_BUYER, CREATE_SELLER, BACK};
 enum AdminPrompt{VIEW_ALL_BUYERS, VIEW_ALL_SELLERS, VIEW_ALL_BUYERS_DETAILED, VIEW_ALL_SELLERS_DETAILED, SEARCH, CREATE_NEW_ACCOUNT, REMOVE_ACCOUNT, BACK_TO_MAIN};
+enum CreateAccountPrompt{CREATE_BUYER_ACCOUNT, CREATE_SELLER_ACCOUNT, CREATE_BANK_ACCOUNT, BACK_TO_ADMIN};
 using namespace std;
 
 int main() {
@@ -23,23 +24,23 @@ int main() {
     vector<seller> sellers;
     
     // Sample data for testing
-    // Create some initial bank customers
-    BankCustomer customer1(1, "Alice Johnson", 1500.0);
-    BankCustomer customer2(2, "Bob Smith", 2000.0);
-    BankCustomer customer3(3, "Carol Davis", 1200.0);
+    // Create some initial bank customers with complete information
+    BankCustomer customer1(1, "Alice Johnson", 1500.0, "123 Main St, Springfield", "555-0101", "alice@email.com");
+    BankCustomer customer2(2, "Bob Smith", 2000.0, "456 Oak Ave, Springfield", "555-0102", "bob@email.com");
+    BankCustomer customer3(3, "Carol Davis", 1200.0, "789 Pine Rd, Springfield", "555-0103", "carol@email.com");
     bankCustomers.push_back(customer1);
     bankCustomers.push_back(customer2);
     bankCustomers.push_back(customer3);
     
-    // Create some initial buyers
-    Buyer buyer1(1, "Alice Johnson", bankCustomers[0]);
-    Buyer buyer2(2, "Bob Smith", bankCustomers[1]);
+    // Create some initial buyers with complete information
+    Buyer buyer1(1, "Alice Johnson", bankCustomers[0], "123 Main St, Springfield", "555-0101", "alice@email.com");
+    Buyer buyer2(2, "Bob Smith", bankCustomers[1], "456 Oak Ave, Springfield", "555-0102", "bob@email.com");
     buyers.push_back(buyer1);
     buyers.push_back(buyer2);
     
-    // Create some initial sellers
-    seller seller1(buyer1, 101, "Alice's Store");
-    seller seller2(Buyer(3, "Carol Davis", bankCustomers[2]), 102, "Carol's Market");
+    // Create some initial sellers with store information
+    seller seller1(buyer1, 101, "Alice's Store", "123 Main St Store, Springfield", "555-0201", "store.alice@email.com");
+    seller seller2(Buyer(3, "Carol Davis", bankCustomers[2], "789 Pine Rd, Springfield", "555-0103", "carol@email.com"), 102, "Carol's Market", "789 Pine Market, Springfield", "555-0203", "market.carol@email.com");
     sellers.push_back(seller1);
     sellers.push_back(seller2);
 
@@ -221,9 +222,15 @@ int main() {
                                         cout << "\n--- Buyer Details ---\n";
                                         cout << "ID: " << buyer.getId() << "\n";
                                         cout << "Name: " << buyer.getName() << "\n";
+                                        cout << "Address: " << buyer.getAddress() << "\n";
+                                        cout << "Phone: " << buyer.getPhoneNumber() << "\n";
+                                        cout << "Email: " << buyer.getEmail() << "\n";
                                         cout << "Bank Account ID: " << buyer.getAccount().getId() << "\n";
                                         cout << "Account Balance: $" << buyer.getAccount().getBalance() << "\n";
                                         cout << "Account Holder: " << buyer.getAccount().getName() << "\n";
+                                        cout << "Bank Address: " << buyer.getAccount().getAddress() << "\n";
+                                        cout << "Bank Phone: " << buyer.getAccount().getPhoneNumber() << "\n";
+                                        cout << "Bank Email: " << buyer.getAccount().getEmail() << "\n";
                                         cout << "---------------------\n";
                                     }
                                 }
@@ -237,10 +244,19 @@ int main() {
                                         cout << "\n--- Seller Details ---\n";
                                         cout << "Buyer ID: " << seller.getId() << "\n";
                                         cout << "Name: " << seller.getName() << "\n";
+                                        cout << "Personal Address: " << seller.getAddress() << "\n";
+                                        cout << "Personal Phone: " << seller.getPhoneNumber() << "\n";
+                                        cout << "Personal Email: " << seller.getEmail() << "\n";
                                         cout << "Store Name: Store #" << seller.getId() << "\n";
+                                        cout << "Store Address: " << seller.getStoreAddress() << "\n";
+                                        cout << "Store Phone: " << seller.getStorePhoneNumber() << "\n";
+                                        cout << "Store Email: " << seller.getStoreEmail() << "\n";
                                         cout << "Bank Account ID: " << seller.getAccount().getId() << "\n";
                                         cout << "Account Balance: $" << seller.getAccount().getBalance() << "\n";
                                         cout << "Account Holder: " << seller.getAccount().getName() << "\n";
+                                        cout << "Bank Address: " << seller.getAccount().getAddress() << "\n";
+                                        cout << "Bank Phone: " << seller.getAccount().getPhoneNumber() << "\n";
+                                        cout << "Bank Email: " << seller.getAccount().getEmail() << "\n";
                                         cout << "----------------------\n";
                                     }
                                 }
@@ -297,8 +313,8 @@ int main() {
                                 break;
                             }
                             case CREATE_NEW_ACCOUNT: {
-                                bool createActive = true;
-                                while (createActive) {
+                                CreateAccountPrompt createPrompt = CREATE_BUYER_ACCOUNT;
+                                while (createPrompt != BACK_TO_ADMIN) {
                                     cout << "Create New Account:\n";
                                     cout << "1. Create Buyer Account\n";
                                     cout << "2. Create Seller Account\n";
@@ -312,46 +328,151 @@ int main() {
                                         cout << "Invalid input.\n";
                                         continue;
                                     }
-                                    switch (c) {
-                                        case 1: {
-                                            cout << "[TODO] Create Buyer Account\n";
+                                    createPrompt = static_cast<CreateAccountPrompt>(c - 1);
+                                    
+                                    switch (createPrompt) {
+                                        case CREATE_BUYER_ACCOUNT: {
+                                            cout << "\n=== Create Buyer Account ===\n";
                                             // collect: Name, Address, Phone, Email
                                             string name, address, phone, email;
+                                            double initialDeposit;
+                                            
                                             cout << "Name: ";    getline(cin >> ws, name);
                                             cout << "Address: "; getline(cin >> ws, address);
                                             cout << "Phone: ";   getline(cin >> ws, phone);
                                             cout << "Email: ";   getline(cin >> ws, email);
-                                            cout << "[TODO] Persist buyer account\n";
+                                            cout << "Initial Bank Deposit: $"; cin >> initialDeposit;
+                                            
+                                            // Generate new IDs
+                                            int newBuyerId = buyers.size() + 1;
+                                            int newBankId = bankCustomers.size() + 1;
+                                            
+                                            // Create bank account first
+                                            BankCustomer newBankCustomer(newBankId, name, initialDeposit, address, phone, email);
+                                            bankCustomers.push_back(newBankCustomer);
+                                            
+                                            // Create buyer account linked to bank account
+                                            Buyer newBuyer(newBuyerId, name, bankCustomers.back(), address, phone, email);
+                                            buyers.push_back(newBuyer);
+                                            
+                                            cout << "\n✅ Buyer account created successfully!\n";
+                                            cout << "Buyer ID: " << newBuyerId << "\n";
+                                            cout << "Bank Account ID: " << newBankId << "\n";
+                                            cout << "Initial Balance: $" << initialDeposit << "\n";
                                             break;
                                         }
-                                        case 2: {
-                                            cout << "[TODO] Create Seller Account\n";
+                                        case CREATE_SELLER_ACCOUNT: {
+                                            cout << "\n=== Create Seller Account ===\n";
                                             // collect: Buyer link (ID), Store details, contact
-                                            string buyerId, storeName, storeAddress, storePhone, storeEmail;
-                                            cout << "Link to Buyer ID: "; getline(cin >> ws, buyerId);
+                                            string buyerIdStr, storeName, storeAddress, storePhone, storeEmail;
+                                            cout << "Link to Buyer ID: "; getline(cin >> ws, buyerIdStr);
+                                            
+                                            // Find the buyer account
+                                            int buyerId = stoi(buyerIdStr);
+                                            Buyer* linkedBuyer = nullptr;
+                                            for (auto& buyer : buyers) {
+                                                if (buyer.getId() == buyerId) {
+                                                    linkedBuyer = &buyer;
+                                                    break;
+                                                }
+                                            }
+                                            
+                                            if (linkedBuyer == nullptr) {
+                                                cout << "❌ Error: Buyer with ID " << buyerId << " not found!\n";
+                                                break;
+                                            }
+                                            
+                                            // Check if buyer already has a seller account
+                                            bool alreadySeller = false;
+                                            for (const auto& seller : sellers) {
+                                                if (seller.getId() == buyerId) {
+                                                    alreadySeller = true;
+                                                    break;
+                                                }
+                                            }
+                                            
+                                            if (alreadySeller) {
+                                                cout << "❌ Error: Buyer " << linkedBuyer->getName() << " already has a seller account!\n";
+                                                break;
+                                            }
+                                            
                                             cout << "Store Name: ";       getline(cin >> ws, storeName);
                                             cout << "Store Address: ";    getline(cin >> ws, storeAddress);
                                             cout << "Store Phone: ";      getline(cin >> ws, storePhone);
                                             cout << "Store Email: ";      getline(cin >> ws, storeEmail);
-                                            cout << "[TODO] Persist seller account and link to buyer\n";
+                                            
+                                            // Generate new seller ID
+                                            int newSellerId = 100 + sellers.size() + 1;
+                                            
+                                            // Create seller account
+                                            seller newSeller(*linkedBuyer, newSellerId, storeName, storeAddress, storePhone, storeEmail);
+                                            sellers.push_back(newSeller);
+                                            
+                                            cout << "\n✅ Seller account created successfully!\n";
+                                            cout << "Seller ID: " << newSellerId << "\n";
+                                            cout << "Linked to Buyer: " << linkedBuyer->getName() << " (ID: " << buyerId << ")\n";
+                                            cout << "Store Name: " << storeName << "\n";
                                             break;
                                         }
-                                        case 3: {
-                                            cout << "[TODO] Create Bank Account\n";
+                                        case CREATE_BANK_ACCOUNT: {
+                                            cout << "\n=== Create Bank Account ===\n";
                                             // collect: Owner (Buyer/Seller) ID, initial deposit, address, phone, email
-                                            string ownerType, ownerId, address, phone, email;
+                                            string ownerType, ownerIdStr, address, phone, email, name;
                                             double initialDeposit = 0.0;
+                                            
                                             cout << "Owner Type (Buyer/Seller): "; getline(cin >> ws, ownerType);
-                                            cout << "Owner ID: ";                 getline(cin >> ws, ownerId);
-                                            cout << "Initial Deposit: ";          cin >> initialDeposit;
+                                            cout << "Owner ID: ";                 getline(cin >> ws, ownerIdStr);
+                                            
+                                            int ownerId = stoi(ownerIdStr);
+                                            bool ownerFound = false;
+                                            
+                                            // Check if owner exists and get their name
+                                            if (ownerType == "Buyer" || ownerType == "buyer") {
+                                                for (const auto& buyer : buyers) {
+                                                    if (buyer.getId() == ownerId) {
+                                                        name = buyer.getName();
+                                                        ownerFound = true;
+                                                        break;
+                                                    }
+                                                }
+                                            } else if (ownerType == "Seller" || ownerType == "seller") {
+                                                for (const auto& seller : sellers) {
+                                                    if (seller.getId() == ownerId) {
+                                                        name = seller.getName();
+                                                        ownerFound = true;
+                                                        break;
+                                                    }
+                                                }
+                                            } else {
+                                                cout << "❌ Error: Invalid owner type! Use 'Buyer' or 'Seller'\n";
+                                                break;
+                                            }
+                                            
+                                            if (!ownerFound) {
+                                                cout << "❌ Error: " << ownerType << " with ID " << ownerId << " not found!\n";
+                                                break;
+                                            }
+                                            
+                                            cout << "Initial Deposit: $";          cin >> initialDeposit;
                                             cout << "Address: ";                  getline(cin >> ws, address);
                                             cout << "Phone: ";                    getline(cin >> ws, phone);
                                             cout << "Email: ";                    getline(cin >> ws, email);
-                                            cout << "[TODO] Persist bank account and link to owner\n";
+                                            
+                                            // Generate new bank account ID
+                                            int newBankId = bankCustomers.size() + 1;
+                                            
+                                            // Create bank account
+                                            BankCustomer newBankAccount(newBankId, name, initialDeposit, address, phone, email);
+                                            bankCustomers.push_back(newBankAccount);
+                                            
+                                            cout << "\n✅ Bank account created successfully!\n";
+                                            cout << "Bank Account ID: " << newBankId << "\n";
+                                            cout << "Account Holder: " << name << " (" << ownerType << " ID: " << ownerId << ")\n";
+                                            cout << "Initial Balance: $" << initialDeposit << "\n";
                                             break;
                                         }
-                                        case 4:
-                                            createActive = false;
+                                        case BACK_TO_ADMIN:
+                                            cout << "Returning to admin menu.\n";
                                             break;
                                         default:
                                             cout << "Invalid option.\n";

@@ -10,6 +10,10 @@ private:
     // Add seller-specific private members here
     int sellerId;
     std::string sellerName;
+    string storeAddress;
+    string storePhoneNumber;
+    string storeEmail;
+    
     bool idDisplayed(int itemId) const {
         // Example implementation, can be customized
         return itemId > 0; // Assuming valid IDs are positive integers
@@ -17,16 +21,34 @@ private:
 
     vector<Item> items; // Assuming seller has a collection of items
 
-
 public:
     seller() = default;
 
+    // Original constructor for backward compatibility
     seller(Buyer buyer, int sellerId, const std::string& sellerName)
-        : Buyer(buyer.getId(), buyer.getName(), buyer.getAccount()), sellerId(sellerId), sellerName(sellerName) {
+        : Buyer(buyer.getId(), buyer.getName(), buyer.getAccount()), sellerId(sellerId), sellerName(sellerName), 
+          storeAddress(""), storePhoneNumber(""), storeEmail("") {
+            Buyer::setId(buyer.getId());
+        }
+    
+    // Enhanced constructor with store contact information
+    seller(Buyer buyer, int sellerId, const std::string& sellerName, const string& storeAddress, const string& storePhoneNumber, const string& storeEmail)
+        : Buyer(buyer.getId(), buyer.getName(), buyer.getAccount()), sellerId(sellerId), sellerName(sellerName),
+          storeAddress(storeAddress), storePhoneNumber(storePhoneNumber), storeEmail(storeEmail) {
             Buyer::setId(buyer.getId());
         }
 
     virtual ~seller() = default;
+    
+    // Getters for store contact information
+    string getStoreAddress() const { return storeAddress; }
+    string getStorePhoneNumber() const { return storePhoneNumber; }
+    string getStoreEmail() const { return storeEmail; }
+    
+    // Setters for store contact information
+    void setStoreAddress(const string& newStoreAddress) { storeAddress = newStoreAddress; }
+    void setStorePhoneNumber(const string& newStorePhoneNumber) { storePhoneNumber = newStorePhoneNumber; }
+    void setStoreEmail(const string& newStoreEmail) { storeEmail = newStoreEmail; }
 
     void addNewItem(int newId, const std::string& newName, int newQuantity, double newPrice) {
         Item newItem(newId, newName, newQuantity, newPrice);
