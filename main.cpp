@@ -4,6 +4,7 @@
 
 enum PrimaryPrompt{LOGIN, REGISTER, EXIT, ADMIN_LOGIN};
 enum RegisterPrompt{CREATE_BUYER, CREATE_SELLER, BACK};
+enum AdminPrompt{VIEW_ALL_USERS, VIEW_ALL_USERS_DETAILED, SEARCH, CREATE_NEW_ACCOUNT, REMOVE_ACCOUNT, BACK_TO_MAIN};
 using namespace std;
 
 int main() {
@@ -125,6 +126,188 @@ int main() {
                 cin >> password;
                 if (username == ADMIN_USERNAME && password == ADMIN_PASSWORD) {
                     cout << "Admin login successful." << endl;
+                    // Admin sub-menu
+                    AdminPrompt adminPrompt = VIEW_ALL_USERS;
+                    while (adminPrompt != BACK_TO_MAIN) {
+                        cout << "\nAdmin Menu:\n";
+                        cout << "1. View All Users\n";
+                        cout << "2. View All Users (Detailed)\n";
+                        cout << "3. Search (Name / Account ID / Address / Phone Number)\n";
+                        cout << "4. Create New Account\n";
+                        cout << "5. Remove User by ID\n";
+                        cout << "6. Back to Main Menu\n";
+                        cout << "Select an option: ";
+
+                        int adminChoice;
+                        if (!(cin >> adminChoice)) {
+                            cin.clear();
+                            cin.ignore(1024, '\n');
+                            cout << "Invalid input.\n";
+                            continue;
+                        }
+                        adminPrompt = static_cast<AdminPrompt>(adminChoice - 1);
+
+                        switch (adminPrompt) {
+                            case VIEW_ALL_USERS:
+                                cout << "[TODO] View All Buyers and Sellers\n";
+                                // list all buyers and sellers (summary)
+                                break;
+                            case VIEW_ALL_USERS_DETAILED:
+                                cout << "[TODO] View All Buyers and Sellers (Detailed)\n";
+                                // list all buyers and sellers with full details
+                                break;
+                            case SEARCH: {
+                                cout << "Search by:\n";
+                                cout << "1. Name\n";
+                                cout << "2. Account ID\n";
+                                cout << "3. Address\n";
+                                cout << "4. Phone Number\n";
+                                cout << "5. Back\n";
+                                cout << "Select an option: ";
+
+                                int searchChoice;
+                                if (!(cin >> searchChoice)) {
+                                    cin.clear();
+                                    cin.ignore(1024, '\n');
+                                    cout << "Invalid input.\n";
+                                    break;
+                                }
+                                if (searchChoice == 5) break;
+
+                                cout << "Search in:\n";
+                                cout << "1. Buyers\n";
+                                cout << "2. Sellers\n";
+                                cout << "3. Both\n";
+                                cout << "Select an option: ";
+                                int scopeChoice;
+                                if (!(cin >> scopeChoice)) {
+                                    cin.clear();
+                                    cin.ignore(1024, '\n');
+                                    cout << "Invalid input.\n";
+                                    break;
+                                }
+
+                                string query;
+                                cout << "Enter search query: ";
+                                getline(cin >> ws, query);
+
+                                cout << "[TODO] Search ";
+                                if (scopeChoice == 1) cout << "Buyers ";
+                                else if (scopeChoice == 2) cout << "Sellers ";
+                                else cout << "Both ";
+                                cout << "by ";
+                                switch (searchChoice) {
+                                    case 1: cout << "Name"; break;
+                                    case 2: cout << "Account ID"; break;
+                                    case 3: cout << "Address"; break;
+                                    case 4: cout << "Phone Number"; break;
+                                    default: cout << "Unknown"; break;
+                                }
+                                cout << " => \"" << query << "\"\n";
+                                // implement filtering here
+                                break;
+                            }
+                            case CREATE_NEW_ACCOUNT: {
+                                bool createActive = true;
+                                while (createActive) {
+                                    cout << "Create New Account:\n";
+                                    cout << "1. Create Buyer Account\n";
+                                    cout << "2. Create Seller Account\n";
+                                    cout << "3. Create Bank Account\n";
+                                    cout << "4. Back\n";
+                                    cout << "Select an option: ";
+                                    int c;
+                                    if (!(cin >> c)) {
+                                        cin.clear();
+                                        cin.ignore(1024, '\n');
+                                        cout << "Invalid input.\n";
+                                        continue;
+                                    }
+                                    switch (c) {
+                                        case 1: {
+                                            cout << "[TODO] Create Buyer Account\n";
+                                            // collect: Name, Address, Phone, Email
+                                            string name, address, phone, email;
+                                            cout << "Name: ";    getline(cin >> ws, name);
+                                            cout << "Address: "; getline(cin >> ws, address);
+                                            cout << "Phone: ";   getline(cin >> ws, phone);
+                                            cout << "Email: ";   getline(cin >> ws, email);
+                                            cout << "[TODO] Persist buyer account\n";
+                                            break;
+                                        }
+                                        case 2: {
+                                            cout << "[TODO] Create Seller Account\n";
+                                            // collect: Buyer link (ID), Store details, contact
+                                            string buyerId, storeName, storeAddress, storePhone, storeEmail;
+                                            cout << "Link to Buyer ID: "; getline(cin >> ws, buyerId);
+                                            cout << "Store Name: ";       getline(cin >> ws, storeName);
+                                            cout << "Store Address: ";    getline(cin >> ws, storeAddress);
+                                            cout << "Store Phone: ";      getline(cin >> ws, storePhone);
+                                            cout << "Store Email: ";      getline(cin >> ws, storeEmail);
+                                            cout << "[TODO] Persist seller account and link to buyer\n";
+                                            break;
+                                        }
+                                        case 3: {
+                                            cout << "[TODO] Create Bank Account\n";
+                                            // collect: Owner (Buyer/Seller) ID, initial deposit, address, phone, email
+                                            string ownerType, ownerId, address, phone, email;
+                                            double initialDeposit = 0.0;
+                                            cout << "Owner Type (Buyer/Seller): "; getline(cin >> ws, ownerType);
+                                            cout << "Owner ID: ";                 getline(cin >> ws, ownerId);
+                                            cout << "Initial Deposit: ";          cin >> initialDeposit;
+                                            cout << "Address: ";                  getline(cin >> ws, address);
+                                            cout << "Phone: ";                    getline(cin >> ws, phone);
+                                            cout << "Email: ";                    getline(cin >> ws, email);
+                                            cout << "[TODO] Persist bank account and link to owner\n";
+                                            break;
+                                        }
+                                        case 4:
+                                            createActive = false;
+                                            break;
+                                        default:
+                                            cout << "Invalid option.\n";
+                                            break;
+                                    }
+                                }
+                                break;
+                            }
+                            case REMOVE_ACCOUNT: {
+                                cout << "Remove which type:\n";
+                                cout << "1. Buyer\n";
+                                cout << "2. Seller\n";
+                                cout << "3. Back\n";
+                                cout << "Select an option: ";
+                                int t;
+                                if (!(cin >> t)) {
+                                    cin.clear();
+                                    cin.ignore(1024, '\n');
+                                    cout << "Invalid input.\n";
+                                    break;
+                                }
+                                if (t == 3) break;
+
+                                string id;
+                                cout << "Enter ID to remove: ";
+                                getline(cin >> ws, id);
+
+                                if (t == 1) {
+                                    cout << "[TODO] Remove Buyer with ID: " << id << " (and related data)\n";
+                                } else if (t == 2) {
+                                    cout << "[TODO] Remove Seller with ID: " << id << " (and related data)\n";
+                                } else {
+                                    cout << "Invalid option.\n";
+                                }
+                                break;
+                            }
+                            case BACK_TO_MAIN:
+                                cout << "Returning to main menu.\n";
+                                break;
+                            default:
+                                cout << "Invalid option.\n";
+                                break;
+                        }
+                    }
+
                 } else {
                     cout << "Admin login failed." << endl;
                     break;
