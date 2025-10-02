@@ -123,6 +123,12 @@ int main() {
                 cin >> username;
                 cout << "Password: ";
                 cin >> password;
+                if (username == ADMIN_USERNAME && password == ADMIN_PASSWORD) {
+                    cout << "Admin login successful." << endl;
+                } else {
+                    cout << "Admin login failed." << endl;
+                    break;
+                }
                 /** After login create a sub prompt that provides the following features
                 1. Account Management
                     - View All Buyers, Sellers
