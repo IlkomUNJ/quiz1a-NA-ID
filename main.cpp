@@ -293,6 +293,7 @@ int main() {
                                 }
                                 break;
                             case SEARCH: {
+                                cout << "\n=== Search Accounts ===\n";
                                 cout << "Search by:\n";
                                 cout << "1. Name\n";
                                 cout << "2. Account ID\n";
@@ -326,8 +327,13 @@ int main() {
                                 string query;
                                 cout << "Enter search query: ";
                                 getline(cin >> ws, query);
-
-                                cout << "[TODO] Search ";
+                                
+                                // Convert query to lowercase for case-insensitive search
+                                string lowerQuery = query;
+                                transform(lowerQuery.begin(), lowerQuery.end(), lowerQuery.begin(), ::tolower);
+                                
+                                cout << "\n=== Search Results ===\n";
+                                cout << "Searching ";
                                 if (scopeChoice == 1) cout << "Buyers ";
                                 else if (scopeChoice == 2) cout << "Sellers ";
                                 else cout << "Both ";
@@ -339,8 +345,129 @@ int main() {
                                     case 4: cout << "Phone Number"; break;
                                     default: cout << "Unknown"; break;
                                 }
-                                cout << " => \"" << query << "\"\n";
-                                // implement filtering here
+                                cout << " for: \"" << query << "\"\n\n";
+                                
+                                bool foundResults = false;
+                                
+                                // Search in Buyers
+                                if (scopeChoice == 1 || scopeChoice == 3) {
+                                    cout << "--- Buyer Results ---\n";
+                                    for (const auto& buyer : buyers) {
+                                        // Check if buyer is not deleted
+                                        bool isDeleted = false;
+                                        for (int deletedId : deletedBuyerIds) {
+                                            if (buyer.getId() == deletedId) {
+                                                isDeleted = true;
+                                                break;
+                                            }
+                                        }
+                                        if (isDeleted) continue;
+                                        
+                                        bool matches = false;
+                                        string searchField;
+                                        
+                                        switch (searchChoice) {
+                                            case 1: // Name
+                                                searchField = buyer.getName();
+                                                break;
+                                            case 2: // Account ID
+                                                searchField = to_string(buyer.getId());
+                                                break;
+                                            case 3: // Address
+                                                searchField = buyer.getAddress();
+                                                break;
+                                            case 4: // Phone Number
+                                                searchField = buyer.getPhoneNumber();
+                                                break;
+                                        }
+                                        
+                                        // Convert to lowercase for case-insensitive comparison
+                                        string lowerField = searchField;
+                                        transform(lowerField.begin(), lowerField.end(), lowerField.begin(), ::tolower);
+                                        
+                                        // Check if query is contained in the field
+                                        if (lowerField.find(lowerQuery) != string::npos) {
+                                            matches = true;
+                                        }
+                                        
+                                        if (matches) {
+                                            foundResults = true;
+                                            cout << "✅ Buyer ID: " << buyer.getId() << "\n";
+                                            cout << "   Name: " << buyer.getName() << "\n";
+                                            cout << "   Address: " << buyer.getAddress() << "\n";
+                                            cout << "   Phone: " << buyer.getPhoneNumber() << "\n";
+                                            cout << "   Email: " << buyer.getEmail() << "\n";
+                                            cout << "   Balance: $" << buyer.getAccount().getBalance() << "\n";
+                                            cout << "   Bank Account ID: " << buyer.getAccount().getId() << "\n";
+                                            cout << "   ---\n";
+                                        }
+                                    }
+                                }
+                                
+                                // Search in Sellers
+                                if (scopeChoice == 2 || scopeChoice == 3) {
+                                    cout << "--- Seller Results ---\n";
+                                    for (const auto& seller : sellers) {
+                                        // Check if seller is not deleted
+                                        bool isDeleted = false;
+                                        for (int deletedId : deletedSellerIds) {
+                                            if (seller.getId() == deletedId) {
+                                                isDeleted = true;
+                                                break;
+                                            }
+                                        }
+                                        if (isDeleted) continue;
+                                        
+                                        bool matches = false;
+                                        string searchField;
+                                        
+                                        switch (searchChoice) {
+                                            case 1: // Name
+                                                searchField = seller.getName();
+                                                break;
+                                            case 2: // Account ID
+                                                searchField = to_string(seller.getId());
+                                                break;
+                                            case 3: // Address (check both personal and store address)
+                                                searchField = seller.getAddress() + " " + seller.getStoreAddress();
+                                                break;
+                                            case 4: // Phone Number (check both personal and store phone)
+                                                searchField = seller.getPhoneNumber() + " " + seller.getStorePhoneNumber();
+                                                break;
+                                        }
+                                        
+                                        // Convert to lowercase for case-insensitive comparison
+                                        string lowerField = searchField;
+                                        transform(lowerField.begin(), lowerField.end(), lowerField.begin(), ::tolower);
+                                        
+                                        // Check if query is contained in the field
+                                        if (lowerField.find(lowerQuery) != string::npos) {
+                                            matches = true;
+                                        }
+                                        
+                                        if (matches) {
+                                            foundResults = true;
+                                            cout << "✅ Seller ID: " << seller.getId() << "\n";
+                                            cout << "   Name: " << seller.getName() << "\n";
+                                            cout << "   Personal Address: " << seller.getAddress() << "\n";
+                                            cout << "   Personal Phone: " << seller.getPhoneNumber() << "\n";
+                                            cout << "   Personal Email: " << seller.getEmail() << "\n";
+                                            cout << "   Store Address: " << seller.getStoreAddress() << "\n";
+                                            cout << "   Store Phone: " << seller.getStorePhoneNumber() << "\n";
+                                            cout << "   Store Email: " << seller.getStoreEmail() << "\n";
+                                            cout << "   Balance: $" << seller.getAccount().getBalance() << "\n";
+                                            cout << "   Bank Account ID: " << seller.getAccount().getId() << "\n";
+                                            cout << "   ---\n";
+                                        }
+                                    }
+                                }
+                                
+                                if (!foundResults) {
+                                    cout << "❌ No results found matching your search criteria.\n";
+                                } else {
+                                    cout << "✅ Search completed.\n";
+                                }
+                                
                                 break;
                             }
                             case CREATE_NEW_ACCOUNT: {
