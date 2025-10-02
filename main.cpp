@@ -1,5 +1,7 @@
 #include <iostream>
 #include <vector>
+#include <algorithm>
+#include <stdexcept>
 #include "bank_customer.h"
 #include "buyer.h"
 #include "seller.h"
@@ -22,6 +24,11 @@ int main() {
     vector<BankCustomer> bankCustomers;
     vector<Buyer> buyers;
     vector<seller> sellers;
+    
+    // Simple tracking for deleted accounts (using IDs)
+    vector<int> deletedBuyerIds;
+    vector<int> deletedSellerIds;
+    vector<int> deletedBankIds;
     
     // Sample data for testing
     // Create some initial bank customers with complete information
@@ -184,35 +191,59 @@ int main() {
                         adminPrompt = static_cast<AdminPrompt>(adminChoice - 1);
 
                         switch (adminPrompt) {
-                            case VIEW_ALL_BUYERS:
+                            case VIEW_ALL_BUYERS: {
                                 cout << "\n=== All Buyers (Summary) ===\n";
-                                if (buyers.empty()) {
-                                    cout << "No buyers found.\n";
-                                } else {
-                                    cout << "ID\tName\t\tBalance\n";
-                                    cout << "--------------------------------\n";
-                                    for (const auto& buyer : buyers) {
+                                bool foundActiveBuyers = false;
+                                cout << "ID\tName\t\tBalance\n";
+                                cout << "--------------------------------\n";
+                                for (const auto& buyer : buyers) {
+                                    // Check if buyer is not deleted
+                                    bool isDeleted = false;
+                                    for (int deletedId : deletedBuyerIds) {
+                                        if (buyer.getId() == deletedId) {
+                                            isDeleted = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!isDeleted) {
                                         cout << buyer.getId() << "\t" 
                                              << buyer.getName() << "\t\t$" 
                                              << buyer.getAccount().getBalance() << "\n";
+                                        foundActiveBuyers = true;
                                     }
                                 }
+                                if (!foundActiveBuyers) {
+                                    cout << "No active buyers found.\n";
+                                }
                                 break;
-                            case VIEW_ALL_SELLERS:
+                            }
+                            case VIEW_ALL_SELLERS: {
                                 cout << "\n=== All Sellers (Summary) ===\n";
-                                if (sellers.empty()) {
-                                    cout << "No sellers found.\n";
-                                } else {
-                                    cout << "ID\tName\t\tStore Name\tBalance\n";
-                                    cout << "--------------------------------------------\n";
-                                    for (const auto& seller : sellers) {
+                                bool foundActiveSellers = false;
+                                cout << "ID\tName\t\tStore Name\tBalance\n";
+                                cout << "--------------------------------------------\n";
+                                for (const auto& seller : sellers) {
+                                    // Check if seller is not deleted
+                                    bool isDeleted = false;
+                                    for (int deletedId : deletedSellerIds) {
+                                        if (seller.getId() == deletedId) {
+                                            isDeleted = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!isDeleted) {
                                         cout << seller.getId() << "\t" 
                                              << seller.getName() << "\t\t"
                                              << "Store #" << seller.getId() << "\t$"
                                              << seller.getAccount().getBalance() << "\n";
+                                        foundActiveSellers = true;
                                     }
                                 }
+                                if (!foundActiveSellers) {
+                                    cout << "No active sellers found.\n";
+                                }
                                 break;
+                            }
                             case VIEW_ALL_BUYERS_DETAILED:
                                 cout << "\n=== All Buyers (Detailed) ===\n";
                                 if (buyers.empty()) {
@@ -482,6 +513,7 @@ int main() {
                                 break;
                             }
                             case REMOVE_ACCOUNT: {
+                                cout << "\n=== Remove Account ===\n";
                                 cout << "Remove which type:\n";
                                 cout << "1. Buyer\n";
                                 cout << "2. Seller\n";
@@ -496,17 +528,147 @@ int main() {
                                 }
                                 if (t == 3) break;
 
-                                string id;
+                                string idStr;
                                 cout << "Enter ID to remove: ";
-                                getline(cin >> ws, id);
-
-                                if (t == 1) {
-                                    cout << "[TODO] Remove Buyer with ID: " << id << " (and related data)\n";
-                                } else if (t == 2) {
-                                    cout << "[TODO] Remove Seller with ID: " << id << " (and related data)\n";
-                                } else {
-                                    cout << "Invalid option.\n";
+                                getline(cin >> ws, idStr);
+                                
+                                try {
+                                    int id = stoi(idStr);
+                                    
+                                    if (t == 1) {
+                                        // Remove Buyer
+                                        cout << "\n=== Remove Buyer Account ===\n";
+                                        
+                                        // Check if buyer already deleted
+                                        for (int deletedId : deletedBuyerIds) {
+                                            if (deletedId == id) {
+                                                cout << "❌ Error: Buyer with ID " << id << " is already deleted!\n";
+                                                goto remove_account_end;
+                                            }
+                                        }
+                                        
+                                        // Find the buyer
+                                        bool buyerFound = false;
+                                        string buyerName;
+                                        int bankAccountId = -1;
+                                        
+                                        for (const auto& buyer : buyers) {
+                                            if (buyer.getId() == id) {
+                                                buyerFound = true;
+                                                buyerName = buyer.getName();
+                                                bankAccountId = buyer.getAccount().getId();
+                                                break;
+                                            }
+                                        }
+                                        
+                                        if (!buyerFound) {
+                                            cout << "❌ Error: Buyer with ID " << id << " not found!\n";
+                                            break;
+                                        }
+                                        
+                                        // Check if buyer has a seller account
+                                        bool hasSeller = false;
+                                        for (const auto& seller : sellers) {
+                                            if (seller.getId() == id) {
+                                                // Check if seller is not already deleted
+                                                bool sellerDeleted = false;
+                                                for (int deletedId : deletedSellerIds) {
+                                                    if (deletedId == id) {
+                                                        sellerDeleted = true;
+                                                        break;
+                                                    }
+                                                }
+                                                if (!sellerDeleted) {
+                                                    hasSeller = true;
+                                                }
+                                                break;
+                                            }
+                                        }
+                                        
+                                        if (hasSeller) {
+                                            cout << "⚠️  Warning: This buyer also has an active seller account.\n";
+                                            cout << "Removing buyer will also remove the seller account.\n";
+                                            cout << "Do you want to continue? (y/n): ";
+                                            char confirm;
+                                            cin >> confirm;
+                                            cin.ignore();
+                                            
+                                            if (confirm != 'y' && confirm != 'Y') {
+                                                cout << "Operation cancelled.\n";
+                                                break;
+                                            }
+                                            
+                                            // Mark seller as deleted
+                                            deletedSellerIds.push_back(id);
+                                            cout << "✅ Associated seller account removed.\n";
+                                        }
+                                        
+                                        // Mark buyer and bank account as deleted
+                                        deletedBuyerIds.push_back(id);
+                                        deletedBankIds.push_back(bankAccountId);
+                                        
+                                        cout << "✅ Buyer account removed successfully!\n";
+                                        cout << "Removed: " << buyerName << " (ID: " << id << ")\n";
+                                        cout << "Associated bank account (ID: " << bankAccountId << ") also removed.\n";
+                                        
+                                    } else if (t == 2) {
+                                        // Remove Seller
+                                        cout << "\n=== Remove Seller Account ===\n";
+                                        
+                                        // Check if seller already deleted
+                                        for (int deletedId : deletedSellerIds) {
+                                            if (deletedId == id) {
+                                                cout << "❌ Error: Seller with ID " << id << " is already deleted!\n";
+                                                goto remove_account_end;
+                                            }
+                                        }
+                                        
+                                        // Find the seller
+                                        bool sellerFound = false;
+                                        string sellerName;
+                                        
+                                        for (const auto& seller : sellers) {
+                                            if (seller.getId() == id) {
+                                                sellerFound = true;
+                                                sellerName = seller.getName();
+                                                break;
+                                            }
+                                        }
+                                        
+                                        if (!sellerFound) {
+                                            cout << "❌ Error: Seller with ID " << id << " not found!\n";
+                                            break;
+                                        }
+                                        
+                                        cout << "⚠️  Warning: This will remove the seller account but keep the buyer account.\n";
+                                        cout << "Do you want to continue? (y/n): ";
+                                        char confirm;
+                                        cin >> confirm;
+                                        cin.ignore();
+                                        
+                                        if (confirm != 'y' && confirm != 'Y') {
+                                            cout << "Operation cancelled.\n";
+                                            break;
+                                        }
+                                        
+                                        // Mark seller as deleted
+                                        deletedSellerIds.push_back(id);
+                                        
+                                        cout << "✅ Seller account removed successfully!\n";
+                                        cout << "Removed: " << sellerName << " (Seller ID: " << id << ")\n";
+                                        cout << "Note: The associated buyer account remains active.\n";
+                                        
+                                    } else {
+                                        cout << "❌ Invalid option.\n";
+                                    }
+                                    
+                                } catch (const invalid_argument& e) {
+                                    cout << "❌ Error: Invalid ID format. Please enter a valid number.\n";
+                                } catch (const out_of_range& e) {
+                                    cout << "❌ Error: ID number is too large.\n";
                                 }
+                                
+                                remove_account_end:
                                 break;
                             }
                             case BACK_TO_MAIN:
