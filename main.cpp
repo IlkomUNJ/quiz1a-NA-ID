@@ -1,6 +1,8 @@
 #include <iostream>
+#include <vector>
 #include "bank_customer.h"
 #include "buyer.h"
+#include "seller.h"
 
 enum PrimaryPrompt{LOGIN, REGISTER, EXIT, ADMIN_LOGIN};
 enum RegisterPrompt{CREATE_BUYER, CREATE_SELLER, BACK};
@@ -15,6 +17,32 @@ int main() {
     const string ADMIN_PASSWORD = "toor";
     string username, password;
 
+    // Storage containers for system data
+    vector<BankCustomer> bankCustomers;
+    vector<Buyer> buyers;
+    vector<seller> sellers;
+    
+    // Sample data for testing
+    // Create some initial bank customers
+    BankCustomer customer1(1, "Alice Johnson", 1500.0);
+    BankCustomer customer2(2, "Bob Smith", 2000.0);
+    BankCustomer customer3(3, "Carol Davis", 1200.0);
+    bankCustomers.push_back(customer1);
+    bankCustomers.push_back(customer2);
+    bankCustomers.push_back(customer3);
+    
+    // Create some initial buyers
+    Buyer buyer1(1, "Alice Johnson", bankCustomers[0]);
+    Buyer buyer2(2, "Bob Smith", bankCustomers[1]);
+    buyers.push_back(buyer1);
+    buyers.push_back(buyer2);
+    
+    // Create some initial sellers
+    seller seller1(buyer1, 101, "Alice's Store");
+    seller seller2(Buyer(3, "Carol Davis", bankCustomers[2]), 102, "Carol's Market");
+    sellers.push_back(seller1);
+    sellers.push_back(seller2);
+
     while (prompt != EXIT) {
         cout << "Select an option: " << endl;
         cout << "1. Login" << endl;
@@ -22,7 +50,12 @@ int main() {
         cout << "3. Exit" << endl;
         cout << "4. Admin Login" << endl;
         int choice;
-        cin >> choice;
+        if (!(cin >> choice)) {
+            cin.clear();
+            cin.ignore(1024, '\n');
+            cout << "Invalid input. Please enter a number." << endl;
+            continue;
+        }
         prompt = static_cast<PrimaryPrompt>(choice - 1);
         switch (prompt) {
             case LOGIN:
@@ -151,20 +184,66 @@ int main() {
 
                         switch (adminPrompt) {
                             case VIEW_ALL_BUYERS:
-                                cout << "[TODO] View All Buyers\n";
-                                // list all buyers (summary)
+                                cout << "\n=== All Buyers (Summary) ===\n";
+                                if (buyers.empty()) {
+                                    cout << "No buyers found.\n";
+                                } else {
+                                    cout << "ID\tName\t\tBalance\n";
+                                    cout << "--------------------------------\n";
+                                    for (const auto& buyer : buyers) {
+                                        cout << buyer.getId() << "\t" 
+                                             << buyer.getName() << "\t\t$" 
+                                             << buyer.getAccount().getBalance() << "\n";
+                                    }
+                                }
                                 break;
                             case VIEW_ALL_SELLERS:
-                                cout << "[TODO] View All Sellers\n";
-                                // list all sellers (summary)
+                                cout << "\n=== All Sellers (Summary) ===\n";
+                                if (sellers.empty()) {
+                                    cout << "No sellers found.\n";
+                                } else {
+                                    cout << "ID\tName\t\tStore Name\tBalance\n";
+                                    cout << "--------------------------------------------\n";
+                                    for (const auto& seller : sellers) {
+                                        cout << seller.getId() << "\t" 
+                                             << seller.getName() << "\t\t"
+                                             << "Store #" << seller.getId() << "\t$"
+                                             << seller.getAccount().getBalance() << "\n";
+                                    }
+                                }
                                 break;
                             case VIEW_ALL_BUYERS_DETAILED:
-                                cout << "[TODO] View All Buyers (Detailed)\n";
-                                // list all buyers with full details
+                                cout << "\n=== All Buyers (Detailed) ===\n";
+                                if (buyers.empty()) {
+                                    cout << "No buyers found.\n";
+                                } else {
+                                    for (const auto& buyer : buyers) {
+                                        cout << "\n--- Buyer Details ---\n";
+                                        cout << "ID: " << buyer.getId() << "\n";
+                                        cout << "Name: " << buyer.getName() << "\n";
+                                        cout << "Bank Account ID: " << buyer.getAccount().getId() << "\n";
+                                        cout << "Account Balance: $" << buyer.getAccount().getBalance() << "\n";
+                                        cout << "Account Holder: " << buyer.getAccount().getName() << "\n";
+                                        cout << "---------------------\n";
+                                    }
+                                }
                                 break;
                             case VIEW_ALL_SELLERS_DETAILED:
-                                cout << "[TODO] View All Sellers (Detailed)\n";
-                                // list all sellers with full details
+                                cout << "\n=== All Sellers (Detailed) ===\n";
+                                if (sellers.empty()) {
+                                    cout << "No sellers found.\n";
+                                } else {
+                                    for (const auto& seller : sellers) {
+                                        cout << "\n--- Seller Details ---\n";
+                                        cout << "Buyer ID: " << seller.getId() << "\n";
+                                        cout << "Name: " << seller.getName() << "\n";
+                                        cout << "Store Name: Store #" << seller.getId() << "\n";
+                                        cout << "Bank Account ID: " << seller.getAccount().getId() << "\n";
+                                        cout << "Account Balance: $" << seller.getAccount().getBalance() << "\n";
+                                        cout << "Account Holder: " << seller.getAccount().getName() << "\n";
+                                        cout << "----------------------\n";
+                                    }
+                                }
                                 break;
                             case SEARCH: {
                                 cout << "Search by:\n";
