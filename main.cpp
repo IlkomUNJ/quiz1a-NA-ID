@@ -4,7 +4,7 @@
 
 enum PrimaryPrompt{LOGIN, REGISTER, EXIT, ADMIN_LOGIN};
 enum RegisterPrompt{CREATE_BUYER, CREATE_SELLER, BACK};
-enum AdminPrompt{VIEW_ALL_USERS, VIEW_ALL_USERS_DETAILED, SEARCH, CREATE_NEW_ACCOUNT, REMOVE_ACCOUNT, BACK_TO_MAIN};
+enum AdminPrompt{VIEW_ALL_BUYERS, VIEW_ALL_SELLERS, VIEW_ALL_BUYERS_DETAILED, VIEW_ALL_SELLERS_DETAILED, SEARCH, CREATE_NEW_ACCOUNT, REMOVE_ACCOUNT, BACK_TO_MAIN};
 using namespace std;
 
 int main() {
@@ -127,15 +127,17 @@ int main() {
                 if (username == ADMIN_USERNAME && password == ADMIN_PASSWORD) {
                     cout << "Admin login successful." << endl;
                     // Admin sub-menu
-                    AdminPrompt adminPrompt = VIEW_ALL_USERS;
+                    AdminPrompt adminPrompt = VIEW_ALL_BUYERS;
                     while (adminPrompt != BACK_TO_MAIN) {
                         cout << "\nAdmin Menu:\n";
-                        cout << "1. View All Users\n";
-                        cout << "2. View All Users (Detailed)\n";
-                        cout << "3. Search (Name / Account ID / Address / Phone Number)\n";
-                        cout << "4. Create New Account\n";
-                        cout << "5. Remove User by ID\n";
-                        cout << "6. Back to Main Menu\n";
+                        cout << "1. View All Buyers\n";
+                        cout << "2. View All Sellers\n";
+                        cout << "3. View All Buyers (Detailed)\n";
+                        cout << "4. View All Sellers (Detailed)\n";
+                        cout << "5. Search (Name / Account ID / Address / Phone Number)\n";
+                        cout << "6. Create New Account\n";
+                        cout << "7. Remove Buyer/Seller by ID\n";
+                        cout << "8. Back to Main Menu\n";
                         cout << "Select an option: ";
 
                         int adminChoice;
@@ -148,13 +150,21 @@ int main() {
                         adminPrompt = static_cast<AdminPrompt>(adminChoice - 1);
 
                         switch (adminPrompt) {
-                            case VIEW_ALL_USERS:
-                                cout << "[TODO] View All Buyers and Sellers\n";
-                                // list all buyers and sellers (summary)
+                            case VIEW_ALL_BUYERS:
+                                cout << "[TODO] View All Buyers\n";
+                                // list all buyers (summary)
                                 break;
-                            case VIEW_ALL_USERS_DETAILED:
-                                cout << "[TODO] View All Buyers and Sellers (Detailed)\n";
-                                // list all buyers and sellers with full details
+                            case VIEW_ALL_SELLERS:
+                                cout << "[TODO] View All Sellers\n";
+                                // list all sellers (summary)
+                                break;
+                            case VIEW_ALL_BUYERS_DETAILED:
+                                cout << "[TODO] View All Buyers (Detailed)\n";
+                                // list all buyers with full details
+                                break;
+                            case VIEW_ALL_SELLERS_DETAILED:
+                                cout << "[TODO] View All Sellers (Detailed)\n";
+                                // list all sellers with full details
                                 break;
                             case SEARCH: {
                                 cout << "Search by:\n";
